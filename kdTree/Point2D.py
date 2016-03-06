@@ -2,8 +2,6 @@ import math
 
 X_COORD = 0
 Y_COORD = 1
-COORDS = [X_COORD, Y_COORD]
-
 
 class Point2D:
     """
@@ -38,8 +36,8 @@ class Point2D:
         :return: the squared distance from this point and the other point given
         """
         sq = 0
-        for c in COORDS:
-            dc = self.coords[c] - other.coords[c]
+        for idx, coord in enumerate(self.coords):
+            dc = coord - other.coords[idx]
             sq += dc * dc
 
         return sq
