@@ -1,12 +1,70 @@
-import Point2D
+import math
+
+X_COORD = 0
+Y_COORD = 1
+Z_COORD = 2
+
+
+class Point:
+    """A point with K coordinates.
+
+    While the point can have the desired number of dimensions, the first three are usually called
+    X_COORD, Y_COORD and Z_COORD and they are at position 0, 1 and 2 of the coordinate list.
+    """
+
+    def __init__(self, coordList):
+        """A K dimensional point from a list with K dimensions.
+
+        :type coordList: list
+        :param coordList: a list with all the coordinates for the point
+        """
+        for coord in coordList:
+            if math.isnan(coord) : raise ValueError("Coordinates cannot be NaN!")
+            if math.isinf(coord) : raise ValueError("Coordinates cannot be Inf!")
+
+        self.coords = coordList[:]
+
+    def __eq__(self, other):
+        return self.coords == other.coords
+
+    def __ne__(self, other):
+        return self.coords != other.coords
+
+    def dimensions(self):
+        return len(self.coords)
+
+    def squaredDistanceTo(self, other):
+        """The squared distance from this point to the other given point.
+
+        :type other: Point
+        :param other: another point to calculate the squared distance to.
+        :return: the squared distance from this point and the other point given
+        """
+        sq = 0
+        for idx, coord in enumerate(self.coords):
+            dc = coord - other.coords[idx]
+            sq += dc * dc
+
+        return sq
+
+
+    def distanceTo(self, other):
+        """The distance from this point to the other given point.
+
+        :type other: Point
+        :param other: another point to calculate the distance to.
+        :return: the distance from this point and the other point given
+        """
+        return math.sqrt(self.squaredDistanceTo(other))
 
 
 class Node:
+    """A node of the K dimenional tree.
+    """
     def __init__(self, point, recHV = None):
-        """
-        Create a node with the give point.
+        """Create a node with the give point.
 
-        :type point: Point2D
+        :type point: Point
         :param point: The point for this node.
         """
         self.point = point
@@ -16,8 +74,7 @@ class Node:
 
 
 class KdTree:
-    """
-    A set of points, internally represented as a kdTree for fast proximity search.
+    """A set of points, internally represented as a kdTree for fast proximity search.
     """
 
     _root = None
@@ -38,7 +95,7 @@ class KdTree:
         Add the point to the set (if it is not already in the set)
 
         :param point: the point to add to the set
-        :type point: Point2D.Point2D
+        :type point: Point
         """
         self._root = self.insertRec(self._root, point, 0)
 
@@ -68,7 +125,7 @@ class KdTree:
         :param node: the current node
         :type node: Node
         :param point: the point to add
-        :type point: Point2D.Point2D
+        :type point: Point
         :param level: the level of the node
         :type level: int
         :return: a negative integer, zero, or a positive integer as the point coordinate is
@@ -83,7 +140,7 @@ class KdTree:
         """
 
         :param point: the point to look for
-        :type point: Point2D.Point2D
+        :type point: Point
         :return: the point, if found, or None, if not found.
         """
         node = self._searchNode(point, self._root, 0)
@@ -112,9 +169,9 @@ class KdTree:
         the nearest neighbor in the set to point p; None if the set is empty.
 
         :param point: the point we want to find the nearest neigbour in the set
-        :type point: Point2D.Point2D
+        :type point: Point
         :return: the nearest point found in the set or None if the set is empty.
-        :rtype point: Point2D.Point2D
+        :rtype point: Point
         """
         if self.isEmpty():
             return None
