@@ -83,19 +83,28 @@ class KdTreeTest(unittest.TestCase):
     def testSearch(self):
         p1 = kdTree.Point([3, 4])
         p2 = kdTree.Point([0, 0])
+        p3 = kdTree.Point([1, 2])
 
         tree = kdTree.KdTree()
         tree.insert(p1)
+        tree.insert(p2)
 
         self.assertEqual(p1, tree.search(p1))
-        self.assertEqual(None, tree.search(p2))
+        self.assertTrue(tree.contains(p1))
+
+        self.assertEqual(p2, tree.search(p2))
+        self.assertTrue(tree.contains(p2))
+
+        self.assertEqual(None, tree.search(p3))
+        self.assertFalse(tree.contains(p3))
+
 
     def testSearch2(self):
-        p1 = kdTree.Point([3, 1])
-        p2 = kdTree.Point([4, 4])
-        p3 = kdTree.Point([2, 3])
+        p1 = kdTree.Point([3, 1, 3])
+        p2 = kdTree.Point([4, 4, 2])
+        p3 = kdTree.Point([2, 3, 4])
 
-        tree = kdTree.KdTree()
+        tree = kdTree.KdTree(dimensions=3)
         tree.insert(p1)
         tree.insert(p2)
         tree.insert(p3)
@@ -104,8 +113,14 @@ class KdTreeTest(unittest.TestCase):
         self.assertEqual(p2, tree.search(p2))
         self.assertEqual(p3, tree.search(p3))
 
-        p = kdTree.Point([1, 2])
+        p = kdTree.Point([1, 2, 3])
         self.assertEqual(None, tree.search(p))
+
+        self.assertTrue(tree.contains(p1))
+        self.assertTrue(tree.contains(p2))
+        self.assertTrue(tree.contains(p3))
+        self.assertFalse(tree.contains(p))
+
 
     def testSearch3(self):
         p = kdTree.Point([1, 2])
@@ -147,7 +162,7 @@ class KdTreeTest(unittest.TestCase):
         p3 = kdTree.Point([2, 3, 1])
         p4 = kdTree.Point([0.5, 0.5, 10])
 
-        tree = kdTree.KdTree()
+        tree = kdTree.KdTree(dimensions=3)
         tree.insert(p1)
         tree.insert(p2)
         tree.insert(p3)
@@ -159,10 +174,31 @@ class KdTreeTest(unittest.TestCase):
         self.assertIsNotNone(nn)
         self.assertEqual(p3, nn)
 
-        p = kdTree.Point([1, 1, 7])
+        p = kdTree.Point([2, 2, 8])
         nn = tree.nearest(p)
         self.assertIsNotNone(nn)
         self.assertEqual(p4, nn)
+
+    def testRange(self):
+        p1 = kdTree.Point([3, 1])
+        p2 = kdTree.Point([4, 4])
+        p3 = kdTree.Point([2, 3])
+        p4 = kdTree.Point([0.5, 0.5])
+
+        tree = kdTree.KdTree()
+        tree.insert(p1)
+        tree.insert(p2)
+        tree.insert(p3)
+        tree.insert(p4)
+
+        points = tree.range(kdTree.Point([0, 0]), kdTree.Point([1, 1]))
+        self.assertEqual(1, len(points))
+        self.assertTrue(p4 in points)
+
+        points = tree.range(kdTree.Point([1, 2]), kdTree.Point([5, 5]))
+        self.assertEqual(2, len(points))
+        self.assertTrue(p2 in points)
+        self.assertTrue(p3 in points)
 
 if __name__ == '__main__':
     unittest.main()

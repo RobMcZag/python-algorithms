@@ -79,12 +79,19 @@ class KdTree:
 
     When building a KdTree set the number of dimensions to use for ordering should be provided if the default (2)
     is not desired. All the entered point then need to provide that required minimum of coordinates.
+    Distance is compared on all available dimensions, regardless of how many dimensions are used in ordering.
     """
 
     _root = None
     _count = 0
 
     def __init__(self, dimensions=2):
+        """Constructs a K dimension Tree.
+
+        The default number of dimensions used is 2.
+
+        :rtype: KdTree
+        """
         self._dim = dimensions
 
     def is_empty(self):
@@ -134,6 +141,9 @@ class KdTree:
         """
         dim = self._dim_by_level(level)
         return point.coords[dim] - node.point.coords[dim]
+
+    def contains(self, point):
+        return self.search(point) is not None
 
     def search(self, point):
         """Searches for a point in the set.
@@ -192,7 +202,7 @@ class KdTree:
         # Update nearest from promising side
         if nearest is None:
             nearest = node
-            sqrdnrst = point.squared_distance_to(nearest.point)
+            sqrdnrst = point.squared_distance_to(node.point)
         else:
             sqrd = point.squared_distance_to(node.point)
             sqrdnrst = point.squared_distance_to(nearest.point)
@@ -216,3 +226,41 @@ class KdTree:
 
         # Return updated nearest from searching both sides, if required.
         return nearest
+
+    def range(self, min_point, max_point ):
+        """Lists the points in the set included in the range defined by the two given points.
+
+        The min_point must have the lower bound for every coordinate, while the max point must have the higher bound.
+
+        :param min_point: the point with coordinates equal to the lowest bounds of the desired range.
+        :type min_point: Point
+        :param max_point: the point with coordinates equal to the highest bounds of the desired range.
+        :type max_point: Point
+        :return: a list with the points of the set falling in the given range.
+        :rtype: list
+        """
+        return self._range(self._root, 0, min_point, max_point)
+
+    def _range(self, node, level, min_point, max_point):
+        if node is None:
+            return []
+
+        points = []
+
+        # Check left side of the tree, if needed
+        min_dist = self.leveled_distance(node, min_point, level)
+        if min_dist < 0:
+            points.extend(self._range(node.left, level + 1, min_point, max_point))
+
+        # Check right side of the tree, if needed
+        max_dist = self.leveled_distance(node, max_point, level)
+        if max_dist >= 0:
+            points.extend(self._range(node.right, level + 1, min_point, max_point))
+
+        # Return the points found, if the current node's point is NOT inside the range
+        for i, coord in enumerate(node.point.coords):
+            if not min_point.coords[i] <= coord <= max_point.coords[i]:
+                return points
+
+        points.append(node.point)
+        return points
