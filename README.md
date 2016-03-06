@@ -30,7 +30,8 @@ This is an ordered tree where multidimensional points are stored in order accord
 at every level of the tree, actually allowing very fast (linearitmic) operations for search and more complex queries 
 like **nearest neighbour** and **range** queries.   
  
-The current implementation is for K = 2, so for 2D points, but can be easily extended to K dimension.
+The current implementation is (lightly) tested for K = 2 and K = 3, so for 2D and 3D points, 
+but should work equally for points with K dimension.
 
 The module could also be extended to implement a Symbol Table to associate to a K dimensional point some value.
 
