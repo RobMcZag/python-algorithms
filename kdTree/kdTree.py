@@ -12,17 +12,19 @@ class Point:
     X_COORD, Y_COORD and Z_COORD and they are at position 0, 1 and 2 of the coordinate list.
     """
 
-    def __init__(self, coordList):
+    def __init__(self, coordinates):
         """A K dimensional point from a list with K dimensions.
 
-        :type coordList: list
-        :param coordList: a list with all the coordinates for the point
+        :type coordinates: list
+        :param coordinates: a list with all the coordinates for the point
         """
-        for coord in coordList:
-            if math.isnan(coord) : raise ValueError("Coordinates cannot be NaN!")
-            if math.isinf(coord) : raise ValueError("Coordinates cannot be Inf!")
+        for coord in coordinates:
+            if math.isnan(coord):
+                raise ValueError("Coordinates cannot be NaN!")
+            if math.isinf(coord):
+                raise ValueError("Coordinates cannot be Inf!")
 
-        self.coords = coordList[:]
+        self.coords = coordinates[:]
 
     def __eq__(self, other):
         return self.coords == other.coords
@@ -33,7 +35,7 @@ class Point:
     def dimensions(self):
         return len(self.coords)
 
-    def squaredDistanceTo(self, other):
+    def squared_distance_to(self, other):
         """The squared distance from this point to the other given point.
 
         :type other: Point
@@ -47,21 +49,20 @@ class Point:
 
         return sq
 
-
-    def distanceTo(self, other):
+    def distance_to(self, other):
         """The distance from this point to the other given point.
 
         :type other: Point
         :param other: another point to calculate the distance to.
         :return: the distance from this point and the other point given
         """
-        return math.sqrt(self.squaredDistanceTo(other))
+        return math.sqrt(self.squared_distance_to(other))
 
 
 class Node:
-    """A node of the K dimenional tree.
+    """A node of the K dimensional tree.
     """
-    def __init__(self, point, recHV = None):
+    def __init__(self, point, recHV=None):
         """Create a node with the give point.
 
         :type point: Point
@@ -75,51 +76,50 @@ class Node:
 
 class KdTree:
     """A set of points, internally represented as a kdTree for fast proximity search.
+
+    When building a KdTree set the number of dimensions to use for ordering should be provided if the default (2)
+    is not desired. All the entered point then need to provide that required minimum of coordinates.
     """
 
     _root = None
     _count = 0
-    _dim = 2
 
-    def __init__(self, dimensions = 2):
+    def __init__(self, dimensions=2):
         self._dim = dimensions
 
-    def isEmpty(self):
-        return self._root == None
+    def is_empty(self):
+        return self._root is None
 
     def size(self):
         return self._count
 
     def insert(self, point):
-        """
-        Add the point to the set (if it is not already in the set)
+        """Add the point to the set (if it is not already in the set)
 
         :param point: the point to add to the set
         :type point: Point
         """
-        self._root = self.insertRec(self._root, point, 0)
+        self._root = self._insert(self._root, point, 0)
 
-    def insertRec(self, node, point, level):
-        if node == None:
+    def _insert(self, node, point, level):
+        if node is None:
             self._count += 1
             node = Node(point)
             return node
 
         ldist = self.leveled_distance(node, point, level)
 
-        if ldist < 0 :
-            node.left = self.insertRec(node.left, point, level + 1)
+        if ldist < 0:
+            node.left = self._insert(node.left, point, level + 1)
         elif ldist != 0 or node.point != point:
-            node.right = self.insertRec(node.right, point, level + 1)
+            node.right = self._insert(node.right, point, level + 1)
         return node
 
-
-    def _dimByLevel(self, level):
+    def _dim_by_level(self, level):
         return level % self._dim
 
     def leveled_distance(self, node, point, level):
-        """
-        Compares two points (the node's point and the given point) on a coordinate based on the node level,
+        """Compares two points (the node's point and the given point) on a coordinate based on the node level,
          reporting if the point coordinate is smaller, equal or bigger than the node's point coordinate.
 
         :param node: the current node
@@ -132,71 +132,70 @@ class KdTree:
         less than, equal to, or greater than the node's point coordinate determined by the level.
         :rtype: int
         """
-
-        dim = self._dimByLevel(level)
+        dim = self._dim_by_level(level)
         return point.coords[dim] - node.point.coords[dim]
 
     def search(self, point):
-        """
+        """Searches for a point in the set.
 
         :param point: the point to look for
         :type point: Point
         :return: the point, if found, or None, if not found.
+        :rtype: Point
         """
-        node = self._searchNode(point, self._root, 0)
-        if node != None:
+        node = self._search_node(point, self._root, 0)
+        if node is not None:
             return node.point
         else:
             return None
 
-    def _searchNode(self, point, node, level):
-        if node == None:
+    def _search_node(self, point, node, level):
+        if node is None:
             return None
         elif node.point == point:
             return node
 
         ldist = self.leveled_distance(node, point, level)
 
-        if ldist < 0 :
-            found = self._searchNode(point, node.left, level + 1)
+        if ldist < 0:
+            found = self._search_node(point, node.left, level + 1)
         else:
-            found = self._searchNode(point, node.right, level + 1)
+            found = self._search_node(point, node.right, level + 1)
 
         return found
 
     def nearest(self, point):
-        """
-        the nearest neighbor in the set to point p; None if the set is empty.
+        """The nearest neighbor in the set to the given point; None if the set is empty.
 
         :param point: the point we want to find the nearest neigbour in the set
         :type point: Point
         :return: the nearest point found in the set or None if the set is empty.
-        :rtype point: Point
+        :rtype: Point
         """
-        if self.isEmpty():
+        if self.is_empty():
             return None
 
-        nnode = self._nearestNode(point, self._root, 0)
+        nnode = self._nearest_node(point, self._root, 0)
         return nnode.point
 
-    def _nearestNode(self, point, node, level):
-        if node == None:
+    def _nearest_node(self, point, node, level):
+        if node is None:
             return None
 
         # Check most promising side
         ldist = self.leveled_distance(node, point, level)
-        if ldist < 0 :
-            nearest = self._nearestNode(point, node.left, level + 1)
+        if ldist < 0:
+            nearest = self._nearest_node(point, node.left, level + 1)
         else:
-            nearest = self._nearestNode(point, node.right, level + 1)
+            nearest = self._nearest_node(point, node.right, level + 1)
 
         # Update nearest from promising side
-        if nearest == None:
+        if nearest is None:
             nearest = node
-            sqrdnrst = point.squaredDistanceTo(nearest.point)
+            sqrdnrst = point.squared_distance_to(nearest.point)
         else:
-            sqrd = point.squaredDistanceTo(node.point)
-            sqrdnrst = point.squaredDistanceTo(nearest.point)
+            sqrd = point.squared_distance_to(node.point)
+            sqrdnrst = point.squared_distance_to(nearest.point)
             if sqrd < sqrdnrst:
                 sqrdnrst = sqrd
                 nearest = node
@@ -204,15 +203,16 @@ class KdTree:
         # Evaluate if less promising side must be searched too
         sqrdldist = ldist * ldist
         if sqrdnrst > sqrdldist:
-            if ldist < 0 :
-                nearest2 = self._nearestNode(point, node.right, level + 1)
+            if ldist < 0:
+                nearest2 = self._nearest_node(point, node.right, level + 1)
             else:
-                nearest2 = self._nearestNode(point, node.left, level + 1)
+                nearest2 = self._nearest_node(point, node.left, level + 1)
 
-            if nearest2 != None:
-                sqrdnrst2 = point.squaredDistanceTo(nearest2.point)
+            if nearest2 is not None:
+                sqrdnrst2 = point.squared_distance_to(nearest2.point)
                 if sqrdnrst2 < sqrdnrst:
-                    sqrdnrst = sqrdnrst2
+                    # sqrdnrst = sqrdnrst2  # currently not used
                     nearest = nearest2
 
+        # Return updated nearest from searching both sides, if required.
         return nearest
