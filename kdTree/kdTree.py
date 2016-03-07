@@ -82,16 +82,16 @@ class KdTree:
     Distance is compared on all available dimensions, regardless of how many dimensions are used in ordering.
     """
 
-    _root = None
-    _count = 0
 
     def __init__(self, dimensions=2):
         """Constructs a K dimension Tree.
 
-        The default number of dimensions used is 2.
+            The default number of dimensions used is 2.
 
-        :rtype: KdTree
-        """
+            :rtype: KdTree
+            """
+        self._root = None
+        self._count = 0
         self._dim = dimensions
 
     def is_empty(self):
