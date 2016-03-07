@@ -38,6 +38,17 @@ class SortTest(unittest.TestCase):
         sort.mergesort(l)
         self.assertEqual(l, ol)
 
+    def testMergeSort4(self):
+        l = list()
+        random.seed(12345)
+        l.extend(random.sample(xrange(1000), 900))
+        l.extend(random.sample(xrange(1000), 900))
+        l.extend(random.sample(xrange(1000), 900))
+        ol = l[:]
+        sort.mergesort(l)
+        self.assertEqual(l, sorted(ol))
+        #print "MS =>", l[:20]
+
     def testMergeSortWithManyDuplicates(self):
         ol = range(-50, 50)
         ol.extend(ol)
@@ -60,6 +71,17 @@ class SortTest(unittest.TestCase):
         l = sorted(ol)
         sort.quicksort(l)
         self.assertEqual(l, ol)
+
+    def testQuickSort4(self):
+        l = list()
+        random.seed(12345)
+        l.extend(random.sample(xrange(1000), 900))
+        l.extend(random.sample(xrange(1000), 900))
+        l.extend(random.sample(xrange(1000), 900))
+        ol = l[:]
+        sort.quicksort(l)
+        self.assertEqual(l, sorted(ol))
+        #print "QS =>", l[:20]
 
     def testQuickSortWithManyDuplicates(self):
         ol = range(-50, 50)
