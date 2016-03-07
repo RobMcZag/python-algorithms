@@ -1,3 +1,6 @@
+import random
+
+
 def swap(lst, i, j):
     """
     swaps the element at position i and j of the given list
@@ -24,7 +27,8 @@ def insertion(lst):
             if lst[j-1] <= lst[j]: break
             swap(lst, j, j - 1)
 
-def merge(lst):
+
+def mergesort(lst):
     """
     sorts a list using the Merge sort algorithm
 
@@ -33,15 +37,17 @@ def merge(lst):
     :return: void
     """
     aux = lst[:]
-    _mergeSort(lst, aux,  0, len(lst))
+    _mergesort(lst, aux, 0, len(lst))
 
-def _mergeSort(lst, aux, st, end):
-    if st == end - 1 : return    # len 1 is sorted
+
+def _mergesort(lst, aux, st, end):
+    if st == end - 1: return    # len 1 is sorted
 
     m = st + (end-st) / 2
-    _mergeSort(lst, aux, st, m)
-    _mergeSort(lst, aux, m, end)
+    _mergesort(lst, aux, st, m)
+    _mergesort(lst, aux, m, end)
     _merge(lst, aux, st, m, end)
+
 
 def _merge(lst, aux, st, m, end):
     l = st
@@ -60,3 +66,36 @@ def _merge(lst, aux, st, m, end):
         else:
             lst[idx] = aux[r]
             r += 1
+
+
+def quicksort(lst):
+    # randomize the list
+    random.shuffle(lst)
+
+    # call recursive sort funtion
+    _quicksort(lst, 0, len(lst))
+
+
+def _quicksort(lst, start, end):
+    if end - start <= 1:
+        return
+    # partition the current block
+    pos = _partition(lst, start, end)
+
+    # sort block left of partiotining position
+    _quicksort(lst, start, pos)
+    # sort block right of partiotining position
+    _quicksort(lst, pos+1, end)
+
+
+def _partition(lst, start, end):
+    pos = start + 1
+    hi = end - 1     # End is NOT included in the array to be partitioned
+    while pos <= hi:
+        if lst[pos] <= lst[start]:
+            pos += 1
+        else:
+            swap(lst, pos, hi)
+            hi += -1
+    swap(lst, start, hi)
+    return hi
